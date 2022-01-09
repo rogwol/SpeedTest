@@ -1,0 +1,37 @@
+import speedtest
+import pandas as pd
+from datetime import datetime
+from threading import Timer
+from openpyxl import load_workbook
+
+def internet():
+    st = speedtest.Speedtest()
+    dt = datetime.now().strftime('%d/%m/%Y')
+    hr = datetime.now().strftime('%H:%M')
+
+    st.get_servers()
+    st.get_best_server()
+    dw = st.download(threads=None)*(10**-6)
+    up = st.upload(threads=None)*(10**-6)
+    pn = st.results.ping
+    rs = st.results.share()
+
+    wb = load_workbook('dados.xlsx')
+    ws = wb['RESULTS']
+
+    to_append = [dt, hr, round(dw), round(up), round(pn), rs]
+    ws.append(to_append)
+
+    ws.column_dimensions['A'].width = 12
+    ws.column_dimensions['B'].width = 6
+    ws.column_dimensions['C'].width = 15
+    ws.column_dimensions['D'].width = 13
+    ws.column_dimensions['E'].width = 8
+    ws.column_dimensions['F'].width = 47
+
+    wb.save('dados.xlsx')
+    wb.close()
+
+    Timer(3600,internet).start()
+
+internet()
